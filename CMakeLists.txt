@@ -1,0 +1,36 @@
+cmake_minimum_required(VERSION 3.15)
+
+# set the project name
+project(cbns3d_cuda LANGUAGES CXX CUDA)
+
+# Enable CUDA
+enable_language(CUDA)
+
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release)
+endif()
+
+set(CMAKE_CXX_FLAGS_DEBUG "-g")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+
+# specify the C++ standard
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+
+# Check if CMAKE_CUDA_ARCHITECTURES is set
+if (NOT CMAKE_CUDA_ARCHITECTURES)
+    message(FATAL_ERROR "CMAKE_CUDA_ARCHITECTURES is not defined. Please set it using -D CMAKE_CUDA_ARCHITECTURES=<value> when configuring the project.")
+endif()
+
+# Show the selected CUDA architecture
+message(STATUS "CUDA architectures set to: ${CMAKE_CUDA_ARCHITECTURES}")
+
+find_package(CUDA REQUIRED)
+
+if(NOT DEFINED CMAKE_CUDA_STANDARD)
+    set(CMAKE_CUDA_STANDARD 14)
+    set(CMAKE_CUDA_STANDARD_REQUIRED ON)
+endif()
+
+include_directories("${CUDA_INCLUDE_DIRS}")
+
