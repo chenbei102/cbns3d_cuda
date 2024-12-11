@@ -43,7 +43,7 @@ file(GLOB CU_FILES "src/*.cu")
 add_library(block3d_cuda STATIC ${CU_FILES})
 set_target_properties(block3d_cuda PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 
-option(INVIS_MODE "Inviscid simulation" OFF)
+option(INVIS_MODE "Inviscid simulation" ON)
 if (INVIS_MODE)
   target_compile_definitions(block3d_cuda
                              PRIVATE IS_INVISCID

@@ -14,9 +14,14 @@
 #include "set_bc_calc_primitive.h"
 #include "get_conservative.h"
 #include "get_primitive.h"
+#include "calc_dt.h"
+#include "calc_numerical_flux.h"
+#include "time_integration.h"
 
 #ifndef IS_INVISCID
 #include "calc_primitive.h"
+#include "calc_viscous_terms.h"
+#include "calc_viscous_flux_contribution.h"
 #endif
 
 
@@ -223,9 +228,75 @@ void Block3d::solve() {
   }
   
   block3d_cuda::set_bc_calc_primitive(&block_info, &block_data, block_data.Q);
+#ifndef IS_INVISCID
+  block3d_cuda::calc_viscous_terms(&block_info, &block_data);
+#endif
 
+  auto start = std::chrono::high_resolution_clock::now();
 
+  for(size_type n_t = 0; n_t < nstep_max; n_t++) {
+
+    if(is_finished() ) break;
+
+    value_type dt = block3d_cuda::calc_dt(&block_info, &block_data);
+    
+    if (t_end - t_cur < dt) {
+      dt = t_end - t_cur;
+    }
+    t_cur += dt;
+    std::cout << n_t << ", " << dt << ", " << t_cur << std::endl;
+
+    block3d_cuda::calc_numerical_flux(&block_info, &block_data, block_data.Q);
+#ifndef IS_INVISCID
+    block3d_cuda::calc_viscous_flux_contribution(&block_info, &block_data);
+#endif
   
+    block3d_cuda::update_rk3(&block_info, &block_data, dt, 1);
+
+    block3d_cuda::set_bc_calc_primitive(&block_info, &block_data, block_data.Q_p);
+#ifndef IS_INVISCID
+    block3d_cuda::calc_viscous_terms(&block_info, &block_data);
+#endif
+
+    // -------------------------------------------------------------------------
+
+    block3d_cuda::calc_numerical_flux(&block_info, &block_data, block_data.Q_p);
+#ifndef IS_INVISCID
+    block3d_cuda::calc_viscous_flux_contribution(&block_info, &block_data);
+#endif
+  
+    block3d_cuda::update_rk3(&block_info, &block_data, dt, 2);
+
+    block3d_cuda::set_bc_calc_primitive(&block_info, &block_data, block_data.Q_p);
+#ifndef IS_INVISCID
+    block3d_cuda::calc_viscous_terms(&block_info, &block_data);
+#endif
+
+    // -------------------------------------------------------------------------
+
+    block3d_cuda::calc_numerical_flux(&block_info, &block_data, block_data.Q_p);
+#ifndef IS_INVISCID
+    block3d_cuda::calc_viscous_flux_contribution(&block_info, &block_data);
+#endif
+  
+    block3d_cuda::update_rk3(&block_info, &block_data, dt, 3);
+
+    block3d_cuda::set_bc_calc_primitive(&block_info, &block_data, block_data.Q);
+#ifndef IS_INVISCID
+    block3d_cuda::calc_viscous_terms(&block_info, &block_data);
+#endif
+
+    if (0 == (n_t + 1) % checkpoint_freq) {
+      block3d_cuda::get_conservative(&block_info, &block_data, Q);
+      output_bin(checkpoint_fname);
+    }
+  }
+
+  auto end = std::chrono::high_resolution_clock::now();
+  auto elapsed_seconds =
+    std::chrono::duration_cast<std::chrono::duration<double>>(end - start);
+
+  std::cout << "Elapsed Time = " << elapsed_seconds.count() << "\n";
 
   if (0 < nstep_max) {
     block3d_cuda::get_conservative(&block_info, &block_data, Q);
