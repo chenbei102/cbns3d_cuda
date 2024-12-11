@@ -8,6 +8,13 @@
 #include "allocate_mem.h"
 #include "free_mem.h"
 #include "calc_metrics.h"
+#include "initial_condition.h"
+#include "calc_conservative.h"
+#include "set_conservative.h"
+
+#ifndef IS_INVISCID
+#include "calc_primitive.h"
+#endif
 
 
 Block3d::Block3d(size_type num_xi, size_type num_eta, size_type num_zeta)
@@ -201,6 +208,17 @@ void Block3d::solve() {
 
   block3d_cuda::calc_metrics(&block_info, &block_data, x, y, z);
 
+  if (is_restart) {
+    block3d_cuda::initial_condition(&block_info, &block_data);
+    block3d_cuda::calc_conservative(&block_info, &block_data, block_data.Q);
+  } else {
+    read_bin(checkpoint_fname);
+    block3d_cuda::set_conservative(&block_info, &block_data, Q);
+#ifndef IS_INVISCID
+    block3d_cuda::calc_primitive(&block_info, &block_data, block_data.Q);
+#endif
+  }
+  
 
 
   
