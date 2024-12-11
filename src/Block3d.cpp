@@ -11,6 +11,7 @@
 #include "initial_condition.h"
 #include "calc_conservative.h"
 #include "set_conservative.h"
+#include "set_bc_calc_primitive.h"
 
 #ifndef IS_INVISCID
 #include "calc_primitive.h"
@@ -219,6 +220,7 @@ void Block3d::solve() {
 #endif
   }
   
+  block3d_cuda::set_bc_calc_primitive(&block_info, &block_data, block_data.Q);
 
 
   
