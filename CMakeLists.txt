@@ -34,3 +34,10 @@ endif()
 
 include_directories("${CUDA_INCLUDE_DIRS}")
 
+# Bring the headers into the project
+include_directories(include)
+
+set(SOURCES src/cbns3d.cpp src/Block3d.cpp)
+
+# Add the executable
+add_executable(cbns3d_cuda ${SOURCES})
