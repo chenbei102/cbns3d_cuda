@@ -4,6 +4,9 @@
 #include <chrono>
 
 #include "Block3d.h"
+#include "copy_block_info.h"
+#include "allocate_mem.h"
+#include "free_mem.h"
 
 
 Block3d::Block3d(size_type num_xi, size_type num_eta, size_type num_zeta)
@@ -188,6 +191,18 @@ void Block3d::solve() {
 
   read_input();
   read_mesh();
+
+  block3d_cuda::copy_block_info(&block_info);
+
+  block3d_cuda::Block3dData block_data;
+
+  block3d_cuda::allocate_mem(&block_info, &block_data);
+
+
+
+  
+
+  block3d_cuda::free_mem(&block_data);
 
   free_mem();
 

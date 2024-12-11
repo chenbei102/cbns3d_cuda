@@ -37,7 +37,27 @@ include_directories("${CUDA_INCLUDE_DIRS}")
 # Bring the headers into the project
 include_directories(include)
 
+# Find all *.cu files in the src/ directory
+file(GLOB CU_FILES "src/*.cu")
+
+add_library(block3d_cuda STATIC ${CU_FILES})
+set_target_properties(block3d_cuda PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+
+option(INVIS_MODE "Inviscid simulation" OFF)
+if (INVIS_MODE)
+  target_compile_definitions(block3d_cuda
+                             PRIVATE IS_INVISCID
+			     )
+endif()
+
 set(SOURCES src/cbns3d.cpp src/Block3d.cpp)
 
 # Add the executable
 add_executable(cbns3d_cuda ${SOURCES})
+target_link_libraries(cbns3d_cuda block3d_cuda)
+
+if (INVIS_MODE)
+  target_compile_definitions(cbns3d_cuda
+                             PRIVATE IS_INVISCID
+			     )
+endif()
