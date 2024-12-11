@@ -50,7 +50,7 @@ git clone https://github.com/chenbei102/cbns3d_cuda.git
 
 3. **Compile the project:**
     ```sh
-       make
+    make
     ```
 
 ### Run Unit Tests (Optional)
@@ -64,7 +64,7 @@ ctest
     The mesh file should be in the **Plot3D format** for a 3D single-grid.
 
 2. **Edit the .ini configuration file:**
-    Edit the `.ini` file to configure the simulation parameters. Refer to the `rae2822.ini` file for an example configuration.
+    Edit the `.ini` file to configure the simulation parameters. Refer to the `python/rae2822.ini` file for an example configuration.
 
 3. **Parse the .ini file:**
     Use the `parser_ini.py` script to parse the configuration file:
