@@ -7,6 +7,7 @@
 #include "copy_block_info.h"
 #include "allocate_mem.h"
 #include "free_mem.h"
+#include "calc_metrics.h"
 
 
 Block3d::Block3d(size_type num_xi, size_type num_eta, size_type num_zeta)
@@ -197,6 +198,8 @@ void Block3d::solve() {
   block3d_cuda::Block3dData block_data;
 
   block3d_cuda::allocate_mem(&block_info, &block_data);
+
+  block3d_cuda::calc_metrics(&block_info, &block_data, x, y, z);
 
 
 
