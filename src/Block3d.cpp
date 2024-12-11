@@ -12,6 +12,8 @@
 #include "calc_conservative.h"
 #include "set_conservative.h"
 #include "set_bc_calc_primitive.h"
+#include "get_conservative.h"
+#include "get_primitive.h"
 
 #ifndef IS_INVISCID
 #include "calc_primitive.h"
@@ -225,6 +227,14 @@ void Block3d::solve() {
 
   
 
+  if (0 < nstep_max) {
+    block3d_cuda::get_conservative(&block_info, &block_data, Q);
+    output_bin(checkpoint_fname);
+  }
+  
+  block3d_cuda::get_primitive(&block_info, &block_data, rho, u, v, w, p);
+  output_vtk();
+  
   block3d_cuda::free_mem(&block_data);
 
   free_mem();
