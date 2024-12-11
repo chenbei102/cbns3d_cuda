@@ -61,3 +61,32 @@ if (INVIS_MODE)
                              PRIVATE IS_INVISCID
 			     )
 endif()
+
+# Create a toggle option for building tests
+option(BUILD_TESTS "Build unit tests" OFF)
+
+# Add tests if the option is enabled
+if(BUILD_TESTS)
+  message(STATUS "Building unit tests")
+
+  include(FetchContent)
+  FetchContent_Declare(
+    googletest
+    URL https://github.com/google/googletest/archive/refs/tags/v1.15.2.zip
+  )
+  set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+  FetchContent_MakeAvailable(googletest)  
+
+  enable_testing()
+  
+  add_executable(unit_tests
+                 test/gradient_test.cpp
+  	         )
+  
+  target_link_libraries(unit_tests gtest_main block3d_cuda)
+  
+  include(GoogleTest)
+  gtest_discover_tests(unit_tests)
+else()
+  message(STATUS "Unit tests are disabled")
+endif()
