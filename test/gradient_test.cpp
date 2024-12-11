@@ -1,8 +1,9 @@
 /**
  * @brief Validates gradient computation on the computational grid.
  * 
- * This test case verifies the accuracy of the gradient computed by the 
- * Block3d class against the known analytical gradients of specific test functions.
+ * This test case verifies the accuracy of the CUDA kernel `block3d_cuda::gradient_kernel`
+ * by comparing its computed gradients against known analytical gradients of predefined
+ * test functions.
  * 
  * @expected
  * The computed gradient values at each grid point should match the analytical

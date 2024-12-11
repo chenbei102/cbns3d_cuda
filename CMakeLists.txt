@@ -81,6 +81,7 @@ if(BUILD_TESTS)
   
   add_executable(unit_tests
                  test/gradient_test.cpp
+                 test/metrics_test.cpp
   	         )
   
   target_link_libraries(unit_tests gtest_main block3d_cuda)
